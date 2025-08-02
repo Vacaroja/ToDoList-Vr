@@ -91,7 +91,7 @@ fun BottomBarFirstScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarFirstScreen(modifier: Modifier = Modifier) {
+fun TopBarFirstScreen() {
     TopAppBar(
         title = { Text("ToDoList") },
         navigationIcon = {
