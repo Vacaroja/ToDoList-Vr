@@ -1,4 +1,4 @@
-package com.ccc.todolistvr.FirstScreen
+package com.ccc.todolistvr.firstScreen
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
