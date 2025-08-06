@@ -13,4 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-
+app/.idea
+app/src/main/java/com/ccc/todolistvr/objects/

@@ -33,12 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ccc.todolistvr.firstScreen.room.daoissues.DaoIssues
 import com.ccc.todolistvr.ui.theme.Pink40
 import com.ccc.todolistvr.ui.theme.Purple40
+import com.ccc.todolistvr.ui.theme.ToDoListVrTheme
+import com.ccc.todolistvr.viewmodel.IssuesViewModel
 
 
 @Composable
-fun FirstScreen(modifier: Modifier = Modifier) {
+fun FirstScreen(modifier: Modifier = Modifier,viewmodel:IssuesViewModel) {
     val issues = remember { mutableStateListOf("") }
     var checkedIssue by remember { mutableStateOf(false) }
 
@@ -109,7 +114,7 @@ fun TopBarFirstScreen() {
 @Preview
 @Composable
 fun PreviewFirstScreen() {
-    FirstScreen()
+
 
 
 }
