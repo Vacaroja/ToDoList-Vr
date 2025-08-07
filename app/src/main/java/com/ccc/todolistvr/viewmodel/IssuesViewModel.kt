@@ -28,7 +28,11 @@ class IssuesViewModel(private val dao: DaoIssues) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            dao.getAll().collectLatest { issueList -> _stateIssue.value = issueList }
+            dao.getAllList().collect { issueList -> _stateIssueList.value = issueList }
+
+        }
+        viewModelScope.launch {
+            dao.getAll().collect { issueList -> _stateIssue.value = issueList }
         }
     }
 
@@ -40,19 +44,22 @@ class IssuesViewModel(private val dao: DaoIssues) : ViewModel() {
         return stateIssue.value
     }
 //----------------------------------add------------------------
-    fun addIssue(Issue: IssuesEntities) {
-        viewModelScope.launch { dao.insertIssue(Issue) }
+    fun addIssue(issue: IssuesEntities) {
+        viewModelScope.launch { dao.insertIssue(issue) }
     }
 
-    fun addIssueList(Issue: IssuesList) {
-        viewModelScope.launch { dao.insertIssueList(Issue) }
+    fun addIssueList(issue: IssuesList) {
+        viewModelScope.launch { dao.insertIssueList(issue) }
     }
 
     //-------------------------------update-----------------------
     fun updateChecked(id: Int) {//cambio de checked revisas gemini si no me acuerdo
+        println("este $id")
         viewModelScope.launch {
             var currentIssue = _stateIssue.value.firstOrNull { it.idIssue == id }
+            println("estes $id")
             if (currentIssue != null) {
+                println("esteses $id")
                 currentIssue.Checked = !currentIssue.Checked
                 dao.updateIssue(currentIssue)
             }
@@ -62,25 +69,29 @@ class IssuesViewModel(private val dao: DaoIssues) : ViewModel() {
 
     }
 
-    fun updateIssue(Issue: IssuesEntities) {
-        viewModelScope.launch { dao.updateIssue(Issue) }
+    fun updateIssue(issue: IssuesEntities) {
+        viewModelScope.launch { dao.updateIssue(issue) }
 
     }
 
-    fun updateIssueList(Issue: IssuesList) {
-        viewModelScope.launch { dao.updateIssueList(Issue) }
+    fun updateIssueList(issue: IssuesList) {
+        viewModelScope.launch { dao.updateIssueList(issue) }
 
     }
 
     //-------------------------------delete-----------------------
-    fun deleteIssue(Issue: IssuesEntities) {
-        viewModelScope.launch { dao.deleteIssue(Issue) }
+    fun deleteIssue(issue: IssuesEntities) {
+        viewModelScope.launch { dao.deleteIssue(issue) }
 
     }
 
-    fun deleteIssueList(Issue: IssuesList) {
-        viewModelScope.launch { dao.deleteIssueList(Issue) }
+    fun deleteIssueList(issue: IssuesList) {
+        viewModelScope.launch { dao.deleteIssueList(issue) }
 
+    }
+
+    fun deleteAllIssue(){
+        viewModelScope.launch { dao.deleteAllIssues() }
     }
 
 }

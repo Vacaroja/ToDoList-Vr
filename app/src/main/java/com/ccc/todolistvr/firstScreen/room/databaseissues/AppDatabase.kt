@@ -6,7 +6,7 @@ import com.ccc.todolistvr.firstScreen.room.daoissues.DaoIssues
 import com.ccc.todolistvr.firstScreen.room.entities.IssuesEntities
 import com.ccc.todolistvr.firstScreen.room.entities.IssuesList
 
-@Database(entities = [IssuesEntities::class, IssuesList::class], version = 1)
+@Database(entities = [IssuesEntities::class, IssuesList::class], version = 2)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun DaoIssues(): DaoIssues
 }

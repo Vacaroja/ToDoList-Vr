@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey
 )
 data class IssuesEntities
     (
-    @PrimaryKey(autoGenerate = true) val idIssue: Int = 1,
+    @PrimaryKey(autoGenerate = true) val idIssue: Int? = null ,
     @ColumnInfo(name = "NameIssue") var nameIssue: String?,
     @ColumnInfo(name = "DateCreated") val dateCreateIssue: String?,
     @ColumnInfo(name = "DateFinish") val dateFinishIssue: String?,

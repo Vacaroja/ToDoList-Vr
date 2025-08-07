@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.room.Room
 import com.ccc.todolistvr.firstScreen.FirstScreen
 import com.ccc.todolistvr.firstScreen.room.databaseissues.AppDatabase
+import com.ccc.todolistvr.firstScreen.room.entities.IssuesList
 import com.ccc.todolistvr.ui.theme.ToDoListVrTheme
 import com.ccc.todolistvr.viewmodel.IssueViewModelFactory
 import com.ccc.todolistvr.viewmodel.IssuesViewModel
@@ -22,10 +23,12 @@ class MainActivity : ComponentActivity() {
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "IssuesDatabase"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
         val dao = db.DaoIssues()
         val factory = IssueViewModelFactory(dao)
         val viewmodel:IssuesViewModel by viewModels { factory }
+
+
         enableEdgeToEdge()
         setContent {
             ToDoListVrTheme {

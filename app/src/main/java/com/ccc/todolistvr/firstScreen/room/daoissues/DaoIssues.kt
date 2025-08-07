@@ -15,13 +15,16 @@ interface DaoIssues {
     fun getAll(): Flow<List<IssuesEntities>>
 
     @Query("SELECT * FROM IssuesList")
-    fun getAllList(): List<IssuesList>
+    fun getAllList(): Flow<List<IssuesList>>
 
     @Query("SELECT * FROM Issues WHERE idListIssue IN (:idListIssue)")
     fun loadListById(idListIssue: Int): List<IssuesEntities>
 
     @Query("UPDATE Issues SET Checked = :newValue WHERE idIssue = :entityId")
     suspend fun updateChecked(entityId: Int, newValue: Boolean)
+
+    @Query("DELETE FROM Issues")
+    suspend fun deleteAllIssues()
 
 //------------------------------------Insert---------------------------------------------
     @Insert
@@ -42,5 +45,7 @@ interface DaoIssues {
 
     @Delete
     suspend fun deleteIssueList(issueList: IssuesList)
+
+
 
 }
