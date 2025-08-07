@@ -49,6 +49,8 @@ import com.ccc.todolistvr.firstScreen.room.entities.IssuesEntities
 import com.ccc.todolistvr.ui.theme.Pink40
 import com.ccc.todolistvr.ui.theme.Purple40
 import com.ccc.todolistvr.viewmodel.IssuesViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -89,7 +91,7 @@ fun AddIssue(
     modifier: Modifier = Modifier,
     viewmodel: IssuesViewModel = viewModel(),
     showBottomSheet: Boolean,
-    closeButtonSheet:()-> Unit
+    closeButtonSheet: () -> Unit
 
 ) {
     var nameIssue by remember { mutableStateOf("") }
@@ -101,13 +103,16 @@ fun AddIssue(
             onDismissRequest = { closeButtonSheet() },
             sheetState = sheetState,
 
+
             ) {
             Column {
                 OutlinedTextField(
                     value = nameIssue,
                     onValueChange = { nameIssue = it },
-                    )
+                    modifier.align(Alignment.CenterHorizontally)
+                )
                 Row {
+                    //goal date button
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.DateRange,
@@ -115,16 +120,30 @@ fun AddIssue(
                         )
                     }
                     Spacer(modifier.weight(1f))
-                    IconButton(onClick = {}) {
+                    //save button
+                    IconButton(onClick = {
+                        if (nameIssue.isNotBlank()) {
+                            viewmodel.addIssue(
+                                IssuesEntities(
+                                    nameIssue = nameIssue,
+                                    dateCreateIssue = getActualDate(),
+                                    dateFinishIssue = getActualDate(),
+                                    idListIssue = 1
+                                )
+                            )
+                            closeButtonSheet()
+                        }
+                    }, ) {
                         Icon(
                             imageVector = Icons.Default.Done,
                             contentDescription = "Save"
                         )
                     }
                 }
+            }
         }
     }
-}}
+}
 
 
 @Composable
@@ -154,12 +173,12 @@ fun CardList(
             if (checked) {//change style of text
                 Text(
                     text = "${issue.nameIssue}",
+                    textDecoration = TextDecoration.LineThrough,
                     modifier = modifier.padding(5.dp)
                 )
             } else {
                 Text(
                     text = "${issue.nameIssue}",
-                    textDecoration = TextDecoration.LineThrough,
                     modifier = modifier.padding(5.dp)
                 )
             }
@@ -198,4 +217,13 @@ fun TopBarFirstScreen(viewmodel: IssuesViewModel = viewModel()) {
     )
 }
 
+fun getActualDate(): String {
+    // Obtiene la fecha actual (por ejemplo: 2025-08-07)
+    val currentDate = LocalDate.now()
+
+    // Formatea la fecha al estilo que necesites (por ejemplo: dd/MM/yyyy)
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+    return currentDate.format(formatter) // Retorna "07/08/2025"
+}
 
