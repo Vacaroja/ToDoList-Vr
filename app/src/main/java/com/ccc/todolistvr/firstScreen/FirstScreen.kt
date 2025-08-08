@@ -2,11 +2,15 @@
 
 package com.ccc.todolistvr.firstScreen
 
-import androidx.compose.foundation.border
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,21 +19,26 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -38,7 +47,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,30 +59,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ccc.todolistvr.date.DatePickerModal
 import com.ccc.todolistvr.date.convertMillisToDate
 import com.ccc.todolistvr.date.getActualDate
-import com.ccc.todolistvr.firstScreen.room.entities.IssuesEntities
+import com.ccc.todolistvr.room.entities.IssuesEntities
+import com.ccc.todolistvr.room.entities.IssuesList
 import com.ccc.todolistvr.ui.theme.BackgroundButtonColor
 import com.ccc.todolistvr.ui.theme.ButtonBLue
 import com.ccc.todolistvr.ui.theme.ErrorLetters
-import com.ccc.todolistvr.ui.theme.Pink40
 import com.ccc.todolistvr.ui.theme.Purple40
 import com.ccc.todolistvr.ui.theme.White
 import com.ccc.todolistvr.viewmodel.IssuesViewModel
+/*
+    q                                           coloca cada funcion en carpetas mmgvo
+* */
 
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FirstScreen(modifier: Modifier = Modifier, viewmodel: IssuesViewModel = viewModel()) {
-
-    val issues by viewmodel.stateIssue.collectAsState()
+    val issues by viewmodel.stateIssueActual.collectAsState()//colocado el actual sino funciona coloca todos
     var showBottomSheet by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
 
 
     Scaffold(
-        topBar = { TopBarFirstScreen() },
+        topBar = { TopBarFirstScreen { expanded = true }
+                 },
         bottomBar = { BottomBarFirstScreen() },
         floatingActionButton = {
             FloatingActionButton(
@@ -83,15 +96,23 @@ fun FirstScreen(modifier: Modifier = Modifier, viewmodel: IssuesViewModel = view
         }, floatingActionButtonPosition = FabPosition.End
     )
     { innnerpadding ->
+
         Surface(Modifier.padding(innnerpadding)) {
+            if (expanded) {
+                IssueListDropdownMenu{ expanded = false }
+            }
+
             LazyColumn {
                 items(issues) { issue ->
-                    CardList(issue)
+                    CardList(
+                        issue, modifier = Modifier.animateItem()
+                    )
 
                 }
             }
         }
     }
+
     AddIssue(showBottomSheet = showBottomSheet) { showBottomSheet = false }
 
 
@@ -171,7 +192,9 @@ fun AddIssue(
                                 nameIssue = ""
                                 errorNameState = false
                                 closeButtonSheet()
-                            } else {errorNameState = true}
+                            } else {
+                                errorNameState = true
+                            }
                         },
                         colors = ButtonDefaults.elevatedButtonColors(
                             containerColor = ButtonBLue,
@@ -254,9 +277,19 @@ fun BottomBarFirstScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarFirstScreen(viewmodel: IssuesViewModel = viewModel()) {
+fun TopBarFirstScreen(viewmodel: IssuesViewModel = viewModel(), expandDropmdownMenu: () -> Unit) {
+
     TopAppBar(
-        title = { Text("ToDoList") },
+        title = {
+            TextButton(onClick = { expandDropmdownMenu() }) {
+                Text("Listas", color = BackgroundButtonColor, fontSize = 25.sp)
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Lists",
+                    tint = BackgroundButtonColor
+                )
+            }
+        },
         navigationIcon = {
             IconButton(onClick = {}) {
                 Icon(
@@ -275,7 +308,94 @@ fun TopBarFirstScreen(viewmodel: IssuesViewModel = viewModel()) {
         },
         colors = topAppBarColors(containerColor = Purple40)
     )
+
 }
 
+@Composable
+fun IssueListDropdownMenu(
+    viewmodel: IssuesViewModel = viewModel(),
+    onDimiss: () -> Unit
 
+) {
+    var openCreatorDialog by remember { mutableStateOf(false) }
+    val issuesList by viewmodel.stateIssueList.collectAsState()
+    DropdownMenu(
+        expanded = true,
+        onDismissRequest = { onDimiss() }
+    ) {
+        issuesList.forEach { issuesList ->
+            DropdownMenuItem(
+                onClick = { viewmodel.ActualIssueList(issuesList.idListIssue) },//cambia de lista
+                text = { Text("${issuesList.nameIssue}") },
+                colors = MenuDefaults.itemColors()
+            )
+
+
+        }
+        DropdownMenuItem(
+            onClick = { openCreatorDialog = true },//cambia de lista
+            text = { Text("Add new issue") },
+            colors = MenuDefaults.itemColors()
+        )
+    }
+    if (openCreatorDialog) {
+        CreatorDialog(onDimiss = { openCreatorDialog = false },
+            onConfirm = { name ->
+            viewmodel.addIssueList(IssuesList(nameIssue = name))
+            openCreatorDialog = false
+        })
+    }
+
+
+}
+
+@Composable
+fun CreatorDialog(
+    onDimiss: () -> Unit,
+    onConfirm: (String?) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = { }) {
+        // Draw a rectangle shape with rounded corners inside the dialog
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(375.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it }
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    TextButton(
+                        onClick = { onDimiss() },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Dismiss")
+                    }
+                    TextButton(
+                        onClick = { if (name.isNotBlank()) onConfirm(name) },
+                        modifier = Modifier.padding(8.dp),
+                    ) {
+                        Text("Confirm")
+                    }
+                }
+            }
+        }
+    }
+}
 

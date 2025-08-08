@@ -1,12 +1,12 @@
-package com.ccc.todolistvr.firstScreen.room.daoissues
+package com.ccc.todolistvr.room.daoissues
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.ccc.todolistvr.firstScreen.room.entities.IssuesEntities
-import com.ccc.todolistvr.firstScreen.room.entities.IssuesList
+import com.ccc.todolistvr.room.entities.IssuesEntities
+import com.ccc.todolistvr.room.entities.IssuesList
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,7 +18,7 @@ interface DaoIssues {
     fun getAllList(): Flow<List<IssuesList>>
 
     @Query("SELECT * FROM Issues WHERE idListIssue IN (:idListIssue)")
-    fun loadListById(idListIssue: Int): List<IssuesEntities>
+    fun loadListById(idListIssue: Int?): Flow<List<IssuesEntities>>
 
     @Query("UPDATE Issues SET Checked = :newValue WHERE idIssue = :entityId")
     suspend fun updateChecked(entityId: Int, newValue: Boolean)

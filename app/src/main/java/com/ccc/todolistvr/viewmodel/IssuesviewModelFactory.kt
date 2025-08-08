@@ -2,7 +2,7 @@ package com.ccc.todolistvr.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.ccc.todolistvr.firstScreen.room.daoissues.DaoIssues
+import com.ccc.todolistvr.room.daoissues.DaoIssues
 
 @Suppress("UNCHECKED_CAST")
 class IssueViewModelFactory(private val dao: DaoIssues):ViewModelProvider.Factory{

@@ -1,15 +1,13 @@
 package com.ccc.todolistvr.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.ccc.todolistvr.firstScreen.room.daoissues.DaoIssues
-import com.ccc.todolistvr.firstScreen.room.entities.IssuesEntities
-import com.ccc.todolistvr.firstScreen.room.entities.IssuesList
+import com.ccc.todolistvr.room.daoissues.DaoIssues
+import com.ccc.todolistvr.room.entities.IssuesEntities
+import com.ccc.todolistvr.room.entities.IssuesList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -34,10 +32,15 @@ class IssuesViewModel(private val dao: DaoIssues) : ViewModel() {
         viewModelScope.launch {
             dao.getAll().collect { issueList -> _stateIssue.value = issueList }
         }
+        ActualIssueList(1)
     }
 
     //-----------------------------funtions--------------------------------------
-
+    fun ActualIssueList(id:Int?){
+        viewModelScope.launch {
+            dao.loadListById(id).collect { issue -> _stateIssueActual.value = issue }
+        }
+    }
 
     //-----------------------------CRUD----------------------------------
     fun readIssues():List<IssuesEntities>{

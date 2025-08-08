@@ -1,4 +1,4 @@
-package com.ccc.todolistvr.firstScreen.room.entities
+package com.ccc.todolistvr.room.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -28,7 +28,7 @@ data class IssuesEntities
 
 @Entity(tableName = "IssuesList")
 data class IssuesList(
-    @PrimaryKey(autoGenerate = true) val idListIssue: Int = 1,
+    @PrimaryKey(autoGenerate = true) val idListIssue: Int? = null,
     @ColumnInfo(name = "Name") var nameIssue: String?,
 
     )
