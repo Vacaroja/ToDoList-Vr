@@ -2,12 +2,14 @@
 
 package com.ccc.todolistvr.firstScreen
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +20,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
@@ -31,8 +35,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,13 +50,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ccc.todolistvr.date.DatePickerModal
+import com.ccc.todolistvr.date.convertMillisToDate
+import com.ccc.todolistvr.date.getActualDate
 import com.ccc.todolistvr.firstScreen.room.entities.IssuesEntities
+import com.ccc.todolistvr.ui.theme.BackgroundButtonColor
+import com.ccc.todolistvr.ui.theme.ButtonBLue
+import com.ccc.todolistvr.ui.theme.ErrorLetters
 import com.ccc.todolistvr.ui.theme.Pink40
 import com.ccc.todolistvr.ui.theme.Purple40
+import com.ccc.todolistvr.ui.theme.White
 import com.ccc.todolistvr.viewmodel.IssuesViewModel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -95,53 +107,101 @@ fun AddIssue(
 
 ) {
     var nameIssue by remember { mutableStateOf("") }
+    var errorNameIssue by remember { mutableStateOf("!!Debe colocar una tarea!!") }
+    var errorNameState by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
     )
+    var goalDateIssue by remember { mutableStateOf<Long?>(null) }
+    var showCalendar by remember { mutableStateOf(false) }
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { closeButtonSheet() },
-            sheetState = sheetState,
+            sheetState = sheetState
 
 
-            ) {
-            Column {
-                OutlinedTextField(
-                    value = nameIssue,
-                    onValueChange = { nameIssue = it },
-                    modifier.align(Alignment.CenterHorizontally)
-                )
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                if (errorNameState) Text(errorNameIssue, color = ErrorLetters)
                 Row {
-                    //goal date button
-                    IconButton(onClick = {}) {
+                    Spacer(modifier.weight(1f))
+                    OutlinedTextField(
+                        value = nameIssue,
+                        onValueChange = { nameIssue = it },
+
+                        )
+                    Spacer(modifier.weight(1f))
+                }
+
+                Row {
+                    //-------------------------------goal date button------------------------------
+
+                    TextButton(
+                        onClick = { showCalendar = true },
+                        colors = ButtonDefaults.elevatedButtonColors(containerColor = BackgroundButtonColor),
+                        modifier = modifier.padding(10.dp)
+                    ) {
+                        Text(
+                            text = "Goal",
+                            fontSize = 15.sp
+                        )
                         Icon(
                             imageVector = Icons.Default.DateRange,
-                            contentDescription = "Date Range"
+                            contentDescription = "Date Range",
+                            modifier.size(20.dp)
                         )
                     }
                     Spacer(modifier.weight(1f))
-                    //save button
-                    IconButton(onClick = {
-                        if (nameIssue.isNotBlank()) {
-                            viewmodel.addIssue(
-                                IssuesEntities(
-                                    nameIssue = nameIssue,
-                                    dateCreateIssue = getActualDate(),
-                                    dateFinishIssue = getActualDate(),
-                                    idListIssue = 1
+                    //--------------------------------save button----------------------------------
+                    TextButton(
+                        onClick = {
+                            if (nameIssue.isNotBlank()) {
+                                viewmodel.addIssue(
+                                    IssuesEntities(
+                                        nameIssue = nameIssue,
+                                        dateCreateIssue = getActualDate(),//get actual date
+                                        dateFinishIssue = goalDateIssue?.let {//take finish date from calendar if he needed if not get actual date
+                                            convertMillisToDate(
+                                                it
+                                            )
+                                        } ?: getActualDate(),
+                                        idListIssue = 1
+                                    )
                                 )
-                            )
-                            closeButtonSheet()
-                        }
-                    }, ) {
+                                nameIssue = ""
+                                errorNameState = false
+                                closeButtonSheet()
+                            } else {errorNameState = true}
+                        },
+                        colors = ButtonDefaults.elevatedButtonColors(
+                            containerColor = ButtonBLue,
+                            contentColor = White
+                        ),
+                        modifier = modifier.padding(10.dp)
+                    ) {
+                        Text(
+                            text = "Save",
+                            fontSize = 15.sp
+                        )
                         Icon(
                             imageVector = Icons.Default.Done,
-                            contentDescription = "Save"
+                            contentDescription = "Save",
+                            modifier.size(25.dp)
                         )
                     }
                 }
             }
         }
+    }
+    if (showCalendar) {
+        DatePickerModal(
+            onDateSelected = { date ->
+                goalDateIssue = date
+                showCalendar = false
+
+            },
+            onDismiss = { showCalendar = false }
+        )
     }
 }
 
@@ -157,7 +217,7 @@ fun CardList(
             .fillMaxWidth()
             .padding(5.dp)
             .heightIn(min = 20.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = Pink40),
+        colors = CardDefaults.elevatedCardColors(containerColor = BackgroundButtonColor),
         shape = RoundedCornerShape(5)
     ) {
         var checked by remember { mutableStateOf(issue.Checked) }
@@ -217,13 +277,5 @@ fun TopBarFirstScreen(viewmodel: IssuesViewModel = viewModel()) {
     )
 }
 
-fun getActualDate(): String {
-    // Obtiene la fecha actual (por ejemplo: 2025-08-07)
-    val currentDate = LocalDate.now()
 
-    // Formatea la fecha al estilo que necesites (por ejemplo: dd/MM/yyyy)
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
-    return currentDate.format(formatter) // Retorna "07/08/2025"
-}
 

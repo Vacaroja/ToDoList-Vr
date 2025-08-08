@@ -95,9 +95,3 @@ class IssuesViewModel(private val dao: DaoIssues) : ViewModel() {
     }
 
 }
-@Suppress("UNCHECKED_CAST")
-class IssueViewModelFactory(private val dao: DaoIssues):ViewModelProvider.Factory{
-    override fun <T : ViewModel> create(modelClass: Class<T>): T{
-        return IssuesViewModel(dao) as T
-    }
-}
